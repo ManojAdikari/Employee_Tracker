@@ -26,7 +26,7 @@ const connection = mysql.createConnection({
   // execute will internally call prepare and query
   connection.execute(
     'SELECT * FROM `table` WHERE `name` = ? AND `age` > ?',
-    ['Rick C-137', 53],
+    ['test mname', 53],
     function(err, results, fields) {
       console.log(results); // results contains rows returned by server
       console.log(fields); // fields contains extra meta data about results, if available
