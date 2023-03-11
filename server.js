@@ -51,7 +51,7 @@ function View_All_EmployeeRoll() {
     });
 }
 
-// View All Employee 
+// View_All_Employeeto_System 
 function View_All_Employee() {
     connection.connect(function (err) {
         if (err) throw err;
@@ -62,7 +62,7 @@ function View_All_Employee() {
         });
     });
 }
-
+//  Add_Departmentsto_System 
 function Add_Departments() {
     inquirer
         .prompt([
@@ -140,200 +140,171 @@ function Add_EmployeeRoll() {
 
 }
 
+
+//Add_Employee_to_System
 function Add_Employee() {
-    const Manage=null;
-    connection.query("SELECT CONCAT( emp_first_name,' ' ,emp_last_name) As name, emp_id FROM employee JOIN emp_role ON employee.emp_role_id=emp_role.ro_id WHERE emp_role.ro_title='%Manager%' ", (err, data) => {
-         Manager = data.map((item) => `${item.name} ID ${item.emp_id} `);
-    });
-    
-    connection.query("SELECT  ro_title,ro_id FROM emp_role ", (err, data) => {
-        const role = data.map((item) => `${item.ro_title} ID ${item.ro_id}`);
-
-
-     
-
-        inquirer
-            .prompt([
+    let userInput1;
+    const query = `SELECT ro_id, ro_title FROM emp_role`;
+    Promise.resolve()
+        .then(() => {
+            return new Promise((resolve, reject) => {
+                connection.query(query, (err, data) => {
+                    if (err) reject(err);
+                    else resolve(data);
+                });
+            });
+        })
+        .then((rolesData) => {
+            const roles = rolesData.map(
+                (item) => ` ${item.ro_title}, ID: ${item.ro_id}`
+            );
+            return inquirer.prompt([
                 {
                     name: "first_name",
                     type: "input",
-                    message: "Enter employee's first name",
+                    message: "Enter the employee's first name",
                 },
                 {
                     name: "last_name",
                     type: "input",
-                    message: "Enter employee's last name",
+                    message: "Enter the employee's last name",
                 },
                 {
-                    name: "Emprole",
+                    name: "role",
                     type: "list",
-                    message: "Select employee's role",
-                    choices: [...role, "None"],
+                    message: "Select the employee's role",
+                    choices: roles,
                 },
+            ]);
+        })
+        .then((answer) => {
+            Fitst_answers = answer;
+            const query2 = `SELECT CONCAT( emp_first_name,' ' ,emp_last_name) As name, emp_id FROM employee JOIN emp_role ON employee.emp_role_id=emp_role.ro_id WHERE emp_role.ro_title LIKE '%Manager%' `;
+            return new Promise((resolve, reject) => {
+                connection.query(query2, (err, data) => {
+                    if (err) reject(err);
+                    else resolve(data);
+                });
+            });
+        })
+        .then((managersData) => {
+            const managers = managersData.map(
+                (item) => `${item.name} ID:${item.emp_id}`
+            );
+            return inquirer.prompt([
                 {
                     name: "manager",
                     type: "list",
-                    message: "Select Manager does Employee Report ",
-                    choices: [...Manager, "None"],
-                  },
-            ])
-          
-            .then((answer) => {
-                
-                connection.query(
-                    `INSERT INTO employee(emp_first_name, emp_last_name, emp_role_id, emp_manager_id) VALUES (?,?,?,?)`,
-                    [answer.first_name,
-                        answer.last_name,
-                        answer.Emprole.split("ID: ")[1],
-                        answer.manager.split("ID:")[1],],
-                    (err, res) => {
-                        if (err) throw err;
-                        console.log(
-                            ` Employee ${first_name}  Added!`
-                        );
-                        
-                        View_All_Employee();
-                    }
-                );
-            });
-
-        //Select_options();
-    }
-    );
-
+                    message: "Select The Manager Employee Report",
+                    choices: [...managers, "None"],
+                },
+            ]);
+        })
+        .then((answer) => {
+            const query = `INSERT INTO employee(emp_first_name, emp_last_name, emp_role_id, emp_manager_id) VALUES (?,?,?,?)`;
+            connection.query(
+                query,
+                [
+                    Fitst_answers.first_name,
+                    Fitst_answers.last_name,
+                    Fitst_answers.role.split("ID: ")[1],
+                    answer.manager.split("ID:")[1],
+                ],
+                (err, data) => {
+                    if (err) throw err;
+                    console.log(
+                        `Employee ${Fitst_answers.first_name} ${Fitst_answers.last_name} Successfully added to the Database`
+                    );
+                    View_All_Employee();
+                }
+            );
+        });
 }
 
-function AddEmployee() {
-    let userInput1;
-    const query = `SELECT ro_id, ro_title FROM emp_role`;
-    Promise.resolve()
-      .then(() => {
-        return new Promise((resolve, reject) => {
-          connection.query(query, (err, data) => {
-            if (err) reject(err);
-            else resolve(data);
-          });
-        });
-      })
-      .then((rolesData) => {
-        const roles = rolesData.map(
-          (item) => ` ${item.ro_title}, ID: ${item.ro_id}`
-        );
-        return inquirer.prompt([
-          {
-            name: "first_name",
-            type: "input",
-            message: "Enter the employee's first name",
-          },
-          {
-            name: "last_name",
-            type: "input",
-            message: "Enter the employee's last name",
-          },
-          {
-            name: "role",
-            type: "list",
-            message: "Select the employee's role",
-            choices: roles,
-          },
-        ]);
-      })
-      .then((answer) => {
-        Fitst_answers = answer;
-        const query2 = `SELECT CONCAT( emp_first_name,' ' ,emp_last_name) As name, emp_id FROM employee JOIN emp_role ON employee.emp_role_id=emp_role.ro_id WHERE emp_role.ro_title LIKE '%Manager%' `;
-        return new Promise((resolve, reject) => {
-          connection.query(query2, (err, data) => {
-            if (err) reject(err);
-            else resolve(data);
-          });
-        });
-      })
-      .then((managersData) => {
-        const managers = managersData.map(
-          (item) => `${item.name} ID:${item.emp_id}`
-        );
-        return inquirer.prompt([
-          {
-            name: "manager",
-            type: "list",
-            message: "Select The Manager Employee Report",
-            choices: [...managers, "None"],
-          },
-        ]);
-      })
-      .then((answer) => {
-        const query = `INSERT INTO employee(emp_first_name, emp_last_name, emp_role_id, emp_manager_id) VALUES (?,?,?,?)`;
-        connection.query(
-          query,
-          [
-            Fitst_answers.first_name,
-            Fitst_answers.last_name,
-            Fitst_answers.role.split("ID: ")[1],
-            answer.manager.split("ID:")[1],
-          ],
-          (err, data) => {
-            if (err) throw err;
-            console.log(
-              `Employee ${Fitst_answers.first_name} ${Fitst_answers.last_name} Successfully added to the Database`
-            );
-            View_All_Employee();
-          }
-        );
-      });
-  }
-
-  function Update_Employee_Role() {
+function Update_Employee_Role() {
     const query = `SELECT emp_first_name, emp_last_name FROM employee;`;
     connection.query(query, (err, data) => {
-      const employees = data.map(
-        (item) => `${item.emp_first_name} ${item.emp_last_name}`
-      );
-      inquirer
-        .prompt([
-          {
-            name: "employee",
-            type: "list",
-            message: "Select Employee you wish to Update",
-            choices: employees,
-          },
-        ])
-        .then((answer) => {
-          const selectedEmployee = answer.employee.split(" ");
-          const firstName = selectedEmployee[0];
-          const lastName = selectedEmployee[1];
-          const query = `SELECT ro_title FROM emp_role;`;
-          connection.query(query, (err, data) => {
-            const roles = data.map((item) => item.ro_title);
-            inquirer
-              .prompt({
-                name: "role",
-                type: "list",
-                message: "Select Employee's New Role",
-                choices: roles,
-              })
-              .then((answer) => {
-                const query = `SELECT ro_id FROM emp_role WHERE ro_title = ?`;
-                connection.query(query, [answer.role], (err, data) => {
-                  if (err) throw err;
-                  const roleId = data[0].ro_id;
-                  const query = `UPDATE employee SET emp_role_id = ? WHERE emp_first_name = ? AND emp_last_name = ?`;
-                  connection.query(
-                    query,
-                    [roleId, firstName, lastName],
-                    (err, data) => {
-                      if (err) throw err;
-                      console.log(
-                        `Successfully Updated ${firstName} ${lastName}'s Role to ${answer.role}.`
-                      );
-                      View_All_Employee();
-                    }
-                  );
+        const employees = data.map(
+            (item) => `${item.emp_first_name} ${item.emp_last_name}`
+        );
+        inquirer
+            .prompt([
+                {
+                    name: "employee",
+                    type: "list",
+                    message: "Select Employee you wish to Update",
+                    choices: employees,
+                },
+            ])
+            .then((answer) => {
+                const selectedEmployee = answer.employee.split(" ");
+                const firstName = selectedEmployee[0];
+                const lastName = selectedEmployee[1];
+                const query = `SELECT ro_title FROM emp_role;`;
+                connection.query(query, (err, data) => {
+                    const roles = data.map((item) => item.ro_title);
+                    inquirer
+                        .prompt({
+                            name: "role",
+                            type: "list",
+                            message: "Select Employee's New Role",
+                            choices: roles,
+                        })
+                        .then((answer) => {
+                            const query = `SELECT ro_id FROM emp_role WHERE ro_title = ?`;
+                            connection.query(query, [answer.role], (err, data) => {
+                                if (err) throw err;
+                                const roleId = data[0].ro_id;
+                                const query = `UPDATE employee SET emp_role_id = ? WHERE emp_first_name = ? AND emp_last_name = ?`;
+                                connection.query(
+                                    query,
+                                    [roleId, firstName, lastName],
+                                    (err, data) => {
+                                        if (err) throw err;
+                                        console.log(
+                                            `Successfully Updated ${firstName} ${lastName}'s Role to ${answer.role}.`
+                                        );
+                                        View_All_Employee();
+                                    }
+                                );
+                            });
+                        });
                 });
-              });
-          });
-        });
+            });
     });
-  }
+}
+function View_Employees_by_Department() {
+    connection.query("SELECT department.dp_name FROM department", (err, data) => {
+        const departments = data.map((item) => `${item.dp_name}`);
+        inquirer
+            .prompt([
+
+                {
+                    type: "list",
+                    name: "department_name",
+                    message: "Select the Department of New Role",
+
+                    choices: [...departments],
+
+                },
+            ])
+            .then((data) => {
+                const {department_name} = data;
+                const Selevt_department=department_name;
+                connection.connect(function (err) {
+                    if (err) throw err;
+                    var Ptint_query =  connection.query("SELECT employee.emp_id AS 'First Name', employee.emp_first_name AS 'First Name', employee.emp_last_name AS 'Last Name', emp_role.ro_title AS 'Employee Roll',department.dp_name AS 'Employee Department',emp_role.ro_salary AS 'Employee Salary' , CONCAT(manager.emp_first_name, ' ', manager.emp_last_name) AS Manager FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id where department.dp_name="+"'"+""+department_name+""+"'"+" ;", function (err, result, fields) { 
+                        if (err) throw err;
+                        console.table(result);
+                        console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+            });
+        //Select_options();
+    });
+
+}
 
 const artStr = String.raw`
   
@@ -371,7 +342,7 @@ function Select_options() {
             type: 'list',
             name: 'SelectOptions',
             message: 'What Would you like to do?',
-            choices: ['Add Departments', 'Add Role', 'Add Employee', 'View All Deparment', 'View All Role', 'View All Employee', 'Update Employee Role']
+            choices: ['Add Departments', 'Add Role', 'Add Employee', 'View All Deparment', 'View All Role', 'View All Employee', 'View Employees by Manager', 'View Employees by Department', 'View the total Utilized Budget of a Department', 'Update Employee Role', 'Update Employee Managers ', 'Delete Departments', 'Delete Roles', 'Delete Employees,']
         }
     ])
         .then((answer) => {
@@ -385,7 +356,7 @@ function Select_options() {
                     break;
                 case "Add Employee":
                     //Add_Employee();
-                    AddEmployee();
+                    Add_Employee();
                     break;
                 case "View All Deparment":
                     View_All_Departments();
@@ -401,6 +372,9 @@ function Select_options() {
                     break;
                 case "Update Employee Role":
                     Update_Employee_Role();
+
+                case "View Employees by Department":
+                 View_Employees_by_Department();
 
             }
         })
