@@ -289,11 +289,11 @@ function View_Employees_by_Department() {
                 },
             ])
             .then((data) => {
-                const {department_name} = data;
-                const Selevt_department=department_name;
+                const { department_name } = data;
+                const Selevt_department = department_name;
                 connection.connect(function (err) {
                     if (err) throw err;
-                    var Ptint_query =  connection.query("SELECT employee.emp_id AS 'First Name', employee.emp_first_name AS 'First Name', employee.emp_last_name AS 'Last Name', emp_role.ro_title AS 'Employee Roll',department.dp_name AS 'Employee Department',emp_role.ro_salary AS 'Employee Salary' , CONCAT(manager.emp_first_name, ' ', manager.emp_last_name) AS Manager FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id where department.dp_name="+"'"+""+department_name+""+"'"+" ;", function (err, result, fields) { 
+                    var Ptint_query = connection.query("SELECT employee.emp_id AS 'First id', employee.emp_first_name AS 'First Name', employee.emp_last_name AS 'Last Name', emp_role.ro_title AS 'Employee Roll',department.dp_name AS 'Employee Department',emp_role.ro_salary AS 'Employee Salary' , CONCAT(manager.emp_first_name, ' ', manager.emp_last_name) AS Manager FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id where department.dp_name=" + "'" + "" + department_name + "" + "'" + " ;", function (err, result, fields) {
                         if (err) throw err;
                         console.table(result);
                         console.log(Ptint_query.sql);
@@ -305,7 +305,177 @@ function View_Employees_by_Department() {
     });
 
 }
+function View_Employees_by_Manager() {
+    connection.query("SELECT CONCAT(employee.emp_first_name, ' ',employee.emp_last_name) AS Manager , emp_role.ro_title AS 'EmployeeRoll',department.dp_name AS 'EmployeeDepartment'FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id  WHERE ro_title LIKE '%Manager%' ;", (err, data) => {
+        const Roll = data.map((item) => `${item.Manager}`);
+        inquirer
+            .prompt([
 
+                {
+                    type: "list",
+                    name: "Manager",
+                    message: "Select the Manager Name",
+
+                    choices: [...Roll],
+
+                },
+            ])
+            .then((data) => {
+                const { Manager } = data;
+
+                connection.connect(function (err) {
+                    if (err) throw err;
+                    var Ptint_query = connection.query("SELECT * FROM(SELECT employee.emp_id AS 'First id', employee.emp_first_name AS 'First Name', employee.emp_last_name AS 'Last Name', emp_role.ro_title AS 'Employee Roll',department.dp_name AS 'Employee Department',emp_role.ro_salary AS 'Employee Salary' , CONCAT(manager.emp_first_name, ' ', manager.emp_last_name) AS Manager FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON Manager.emp_id = employee.emp_manager_id)as innerTable WHERE Manager=" + "'" + "" + Manager + "" + "'" + " ;", function (err, result, fields) {
+                        if (err) throw err;
+                        console.table(result);
+                        //   console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+            });
+        //Select_options();
+    });
+
+}
+
+function View_the_total_Utilized_Budget_of_a_Department() {
+    connection.query("SELECT department.dp_name FROM department", (err, data) => {
+        const departments = data.map((item) => `${item.dp_name}`);
+        inquirer
+            .prompt([
+
+                {
+                    type: "list",
+                    name: "department_name",
+                    message: "Select the Department of New Role",
+
+                    choices: [...departments],
+
+                },
+            ])
+            .then((data) => {
+                const { department_name } = data;
+                const Selevt_department = department_name;
+                connection.connect(function (err) {
+                    if (err) throw err;
+                    var Ptint_query = connection.query(" SELECT department.dp_name AS 'Department',SUM(emp_role.ro_salary) AS 'Utilized Budget' FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id LEFT JOIN department on department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON Manager.emp_id = employee.emp_manager_id where department.dp_name=" + "'" + "" + department_name + "" + "'" + " ;", function (err, result, fields) {
+                        if (err) throw err;
+                        console.table(result);
+                        //console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+            });
+        //Select_options();
+    });
+}
+
+
+function Delete_Departments() {
+    connection.query("SELECT department.dp_name FROM department", (err, data) => {
+        const departments = data.map((item) => `${item.dp_name}`);
+        inquirer
+            .prompt([
+
+                {
+                    type: "list",
+                    name: "department_name",
+                    message: "Select the Department of New Role",
+
+                    choices: [...departments],
+
+                },
+            ])
+            .then((data) => {
+                const { department_name } = data;
+
+                connection.connect(function (err) {
+                    if (err) throw err;
+                    var Ptint_query = connection.query("DELETE FROM department WHERE dp_name=" + "'" + "" + department_name + "" + "'" + " ;", function (err, result, fields) {
+                        if (err) throw err;
+                        console.log("Department" + " " + department_name + " " + "Delete from Database");
+                        //console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+            });
+        //Select_options();
+    });
+}
+function Delete_Roles() {
+    connection.query("SELECT ro_title FROM emp_role", (err, data) => {
+        const departments = data.map((item) => `${item.ro_title}`);
+        inquirer
+            .prompt([
+
+                {
+                    type: "list",
+                    name: "ro_title",
+                    message: "Select the Department of New Role",
+
+                    choices: [...departments],
+
+                },
+            ])
+            .then((data) => {
+                const { ro_title } = data;
+
+                connection.connect(function (err) {
+                    if (err) throw err;
+                    var Ptint_query = connection.query("DELETE FROM emp_role WHERE ro_title=" + "'" + "" + ro_title + "" + "'" + " ;", function (err, result, fields) {
+                        if (err) throw err;
+                        console.log("Employee Roll" + " " + ro_title + " " + "Delete from Database");
+                        //console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+            });
+        //Select_options();
+    });
+
+}
+function Delete_Employees() {
+    connection.query("SELECT CONCAT( employee.emp_first_name ,' ', employee.emp_last_name )AS 'Employee_Name' FROM employee", (err, data) => {
+        const departments = data.map((item) => `${item.Employee_Name}`);
+        inquirer
+            .prompt([
+
+                {
+                    type: "list",
+                    name: "Employee_Name",
+                    message: "Select Employee You need to Delete",
+
+                    choices: [...departments],
+
+                },
+            ])
+            .then((data) => {
+                const { Employee_Name } = data;
+                //const EmpId=null;
+                connection.query("SELECT * FROM(SELECT emp_id, CONCAT( employee.emp_first_name ,' ', employee.emp_last_name )AS 'Employee_Name' FROM employee) as innerTable WHERE Employee_Name=" + "'" + "" + Employee_Name + "" + "'" + " ;", (err, data) => {
+                    const EmpId = data.map((item) => `${item.emp_id}`);
+                console.log(data);
+                console.log(EmpId);
+                    //EmpId  = data.map((item) => `${item.emp_id}`);
+                  
+                    //console.log();
+               
+                   connection.connect(function (err) {
+                    if (err) throw err;
+                    //SELECT * FROM(SELECT emp_id, CONCAT( employee.emp_first_name ,' ', employee.emp_last_name )AS 'Employee_Name' FROM employee) as innerTable WHERE Employee_Name='Tony Normen';
+
+                    var Ptint_query = connection.query("DELETE FROM employee WHERE emp_id=" + "'" + "" + EmpId + "" + "'" + " ;", function (err, result, fields) {
+                        if (err) throw err;
+                        console.log("Employee Roll" + " " + Employee_Name + " " + "Delete from Database");
+                        //console.log(Ptint_query.sql);
+                        Select_options();
+                    });
+                });
+                });
+            });
+        //Select_options();
+    });
+}
 const artStr = String.raw`
   
 ███████╗███╗░░░███╗██████╗░██╗░░░░░░█████╗░██╗░░░██╗███████╗███████╗
@@ -342,7 +512,7 @@ function Select_options() {
             type: 'list',
             name: 'SelectOptions',
             message: 'What Would you like to do?',
-            choices: ['Add Departments', 'Add Role', 'Add Employee', 'View All Deparment', 'View All Role', 'View All Employee', 'View Employees by Manager', 'View Employees by Department', 'View the total Utilized Budget of a Department', 'Update Employee Role', 'Update Employee Managers ', 'Delete Departments', 'Delete Roles', 'Delete Employees,']
+            choices: ['Add Departments', 'Add Role', 'Add Employee', 'View All Deparment', 'View All Role', 'View All Employee', 'View Employees by Manager', 'View Employees by Department', 'View the total Utilized Budget of a Department', 'Update Employee Role', 'Update Employee Managers ', 'Delete Departments', 'Delete Roles', 'Delete Employees','Quit']
         }
     ])
         .then((answer) => {
@@ -351,30 +521,60 @@ function Select_options() {
                     Add_Departments();
 
                     break;
+
                 case "Add Role":
                     Add_EmployeeRoll();
                     break;
+
                 case "Add Employee":
                     //Add_Employee();
                     Add_Employee();
                     break;
+
                 case "View All Deparment":
                     View_All_Departments();
 
                     break;
+
                 case "View All Role":
                     View_All_EmployeeRoll();
 
                     break;
+
                 case "View All Employee":
                     View_All_Employee();
 
                     break;
+
                 case "Update Employee Role":
                     Update_Employee_Role();
+                    break;
 
                 case "View Employees by Department":
-                 View_Employees_by_Department();
+                    View_Employees_by_Department();
+                    break;
+
+                case "View Employees by Manager":
+                    View_Employees_by_Manager();
+                    break;
+
+                case "View the total Utilized Budget of a Department":
+                    View_the_total_Utilized_Budget_of_a_Department();
+                    break;
+
+                case "Delete Departments":
+                    Delete_Departments();
+                    break;
+                case "Delete Roles":
+                    Delete_Roles();
+                    break;
+                case "Delete Employees":
+                    Delete_Employees();
+                    break;
+                    case "Quit":
+                        process.exit();
+                        break;
+                    
 
             }
         })
