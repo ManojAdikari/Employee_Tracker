@@ -220,7 +220,7 @@ function Add_Employee() {
             );
         });
 }
-
+//Update_Employee_Role_in_System
 function Update_Employee_Role() {
     const query = `SELECT emp_first_name, emp_last_name FROM employee;`;
     connection.query(query, (err, data) => {
@@ -273,6 +273,7 @@ function Update_Employee_Role() {
             });
     });
 }
+//View_Employees_by_Department_
 function View_Employees_by_Department() {
     connection.query("SELECT department.dp_name FROM department", (err, data) => {
         const departments = data.map((item) => `${item.dp_name}`);
@@ -305,6 +306,7 @@ function View_Employees_by_Department() {
     });
 
 }
+//View_Employees_by_Manager
 function View_Employees_by_Manager() {
     connection.query("SELECT CONCAT(employee.emp_first_name, ' ',employee.emp_last_name) AS Manager , emp_role.ro_title AS 'EmployeeRoll',department.dp_name AS 'EmployeeDepartment'FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id  WHERE ro_title LIKE '%Manager%' ;", (err, data) => {
         const Roll = data.map((item) => `${item.Manager}`);
@@ -338,6 +340,7 @@ function View_Employees_by_Manager() {
 
 }
 
+//View_the_total_Utilized_Budget_of_a_Department
 function View_the_total_Utilized_Budget_of_a_Department() {
     connection.query("SELECT department.dp_name FROM department", (err, data) => {
         const departments = data.map((item) => `${item.dp_name}`);
@@ -370,7 +373,7 @@ function View_the_total_Utilized_Budget_of_a_Department() {
     });
 }
 
-
+//Delete_Departments_from_System
 function Delete_Departments() {
     connection.query("SELECT department.dp_name FROM department", (err, data) => {
         const departments = data.map((item) => `${item.dp_name}`);
@@ -402,6 +405,7 @@ function Delete_Departments() {
         //Select_options();
     });
 }
+//Delete_Roles_from_System
 function Delete_Roles() {
     connection.query("SELECT ro_title FROM emp_role", (err, data) => {
         const departments = data.map((item) => `${item.ro_title}`);
@@ -434,6 +438,7 @@ function Delete_Roles() {
     });
 
 }
+//Delete_Employees_from_System
 function Delete_Employees() {
     connection.query("SELECT CONCAT( employee.emp_first_name ,' ', employee.emp_last_name )AS 'Employee_Name' FROM employee", (err, data) => {
         const departments = data.map((item) => `${item.Employee_Name}`);
