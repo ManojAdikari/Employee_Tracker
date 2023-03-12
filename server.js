@@ -179,7 +179,7 @@ function Add_Employee() {
         })
         .then((answer) => {
             Fitst_answers = answer;
-            const query2 = `SELECT CONCAT( emp_first_name,' ' ,emp_last_name) As name, emp_id FROM employee JOIN emp_role ON employee.emp_role_id=emp_role.ro_id WHERE emp_role.ro_title LIKE '%Manager%' `;
+            const query2 = `SELECT CONCAT( emp_first_name,' ' ,emp_last_name) As name, emp_id FROM employee JOIN emp_role ON employee.emp_role_id=emp_role.ro_id WHERE emp_role.ro_title LIKE '%Chief%' OR emp_role.ro_title LIKE '%Manager%'  ; `;
             return new Promise((resolve, reject) => {
                 connection.query(query2, (err, data) => {
                     if (err) reject(err);
@@ -297,7 +297,7 @@ function View_Employees_by_Department() {
                     var Ptint_query = connection.query("SELECT employee.emp_id AS 'First id', employee.emp_first_name AS 'First Name', employee.emp_last_name AS 'Last Name', emp_role.ro_title AS 'Employee Roll',department.dp_name AS 'Employee Department',emp_role.ro_salary AS 'Employee Salary' , CONCAT(manager.emp_first_name, ' ', manager.emp_last_name) AS Manager FROM employee LEFT JOIN emp_role ON employee.emp_role_id=emp_role.ro_id   LEFT JOIN department on  department.dp_id=emp_role.ro_dp_id LEFT JOIN employee Manager ON  Manager.emp_id = employee.emp_manager_id where department.dp_name=" + "'" + "" + department_name + "" + "'" + " ;", function (err, result, fields) {
                         if (err) throw err;
                         console.table(result);
-                        console.log(Ptint_query.sql);
+                        //console.log(Ptint_query.sql);
                         Select_options();
                     });
                 });
@@ -398,6 +398,7 @@ function Delete_Departments() {
                         if (err) throw err;
                         console.log("Department" + " " + department_name + " " + "Delete from Database");
                         //console.log(Ptint_query.sql);
+                        View_All_Departments();
                         Select_options();
                     });
                 });
@@ -430,6 +431,7 @@ function Delete_Roles() {
                         if (err) throw err;
                         console.log("Employee Roll" + " " + ro_title + " " + "Delete from Database");
                         //console.log(Ptint_query.sql);
+                        View_All_EmployeeRoll();
                         Select_options();
                     });
                 });
@@ -459,8 +461,8 @@ function Delete_Employees() {
                 //const EmpId=null;
                 connection.query("SELECT * FROM(SELECT emp_id, CONCAT( employee.emp_first_name ,' ', employee.emp_last_name )AS 'Employee_Name' FROM employee) as innerTable WHERE Employee_Name=" + "'" + "" + Employee_Name + "" + "'" + " ;", (err, data) => {
                     const EmpId = data.map((item) => `${item.emp_id}`);
-                console.log(data);
-                console.log(EmpId);
+               //console.log(data);
+               // console.log(EmpId);
                     //EmpId  = data.map((item) => `${item.emp_id}`);
                   
                     //console.log();
@@ -473,7 +475,8 @@ function Delete_Employees() {
                         if (err) throw err;
                         console.log("Employee Roll" + " " + Employee_Name + " " + "Delete from Database");
                         //console.log(Ptint_query.sql);
-                        Select_options();
+                        View_All_Employee();
+                       // Select_options();
                     });
                 });
                 });
